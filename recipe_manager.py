@@ -1,12 +1,12 @@
 import json
 import MySQLdb
 from recipe import Recipe
-from secrets import SECRETS
+from secrets import secrets
 
 DATABASE_NAME = 'food'
 HOST = 'localhost'
-USER = SECRETS['database']['username']
-PASSWORD = SECRETS['database']['password']
+USER = secrets['database']['username']
+PASSWORD = secrets['database']['password']
 db = MySQLdb.connect(host=HOST, user=USER, passwd=PASSWORD, db=DATABASE_NAME, charset='utf8')
 cursor = db.cursor()
 
