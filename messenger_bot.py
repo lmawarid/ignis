@@ -1,9 +1,10 @@
 from pymessenger.bot import Bot
-from secrets import SECRETS
+from secrets import secrets
 import edamam
 
-ACCESS_TOKEN = SECRETS['messenger']['access_token']
-VERIFY_TOKEN = SECRETS['messenger']['verify_token']
+ACCESS_TOKEN = secrets['messenger']['access_token']
+VERIFY_TOKEN = secrets['messenger']['verify_token']
+NEW_RECIPE_LINE = "That's it! I've come up with a new recipe!"
 bot = Bot(ACCESS_TOKEN)
 
 def receive_message(request):
@@ -38,9 +39,11 @@ def __handle_post_request(request):
 
 def __handle_text_message(message, recipient_id):
     original_message = message['message'].get('text')
-    response_sent_text = edamam.recipes_for(original_message)
+    found_new_recipe, response_sent_text = edamam.recipes_for(original_message)
 
-    #response_sent_text = message['message'].get('text')
+    if found_new_recipe:
+        __send_message(recipient_id, NEW_RECIPE_LINE)
+
     __send_message(recipient_id, response_sent_text)
 
 def __handle_attachments(message, recipient_id):
