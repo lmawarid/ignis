@@ -11,4 +11,4 @@ class __Secrets(object):
     def __getitem__(self, key):
         return self.secrets[key]
 
-SECRETS = __Secrets()
+secrets = __Secrets()
