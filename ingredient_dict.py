@@ -58,10 +58,15 @@ class __Trie(object):
     #     return word
 
 __ingredient_dict = __Trie()
+MAX_LEN = 0
+
 with open('ingredients_list.json', 'r') as file:
     ingredient_list = json.loads(file.read())
     for ingredient in ingredient_list:
         __ingredient_dict.add(ingredient)
+        length = len(ingredient)
+        if length > MAX_LEN:
+            MAX_LEN = length
 
 def find(word):
     return __ingredient_dict.find(word)

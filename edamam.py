@@ -4,6 +4,7 @@ import urllib.parse
 import json
 import recipe_manager
 from textblob import TextBlob, Word
+import nltk
 import ingredient_dict
 
 APP_ID = secrets['edamam']['app_id']
@@ -43,8 +44,31 @@ def __search(keywords):
 
 def __extract_ingredients(message):
     blob = TextBlob(message)
-    tagged_nouns = filter(lambda tag: 'NN' in tag[1], blob.tags)
-    nouns = map(lambda tag: Word(tag[0]).lemmatize(), tagged_nouns)
-    ingredients = list(filter(lambda noun: ingredient_dict.find(noun), nouns))
+    lemmatized_words = list(map(lambda w: Word(w).lemmatize(), blob.words))
+    ingredients = []
+
+    # This is not super efficient... maybe there'll be a better way to do this later on
+    for n in range(ingredient_dict.MAX_LEN, 0, -1):
+        lemmatized_words, new_ingredients = __filter_ngrams(lemmatized_words, n)
+        ingredients.extend(new_ingredients)
 
     return ', '.join(ingredients)
+
+def __filter_ngrams(word_list, n):
+    ngrams = list(nltk.ngrams(word_list, n))
+    num_ngrams = len(word_list) - n + 1
+    idx = word_idx = 0
+
+    ingredients = []
+    new_word_list = word_list
+    while idx < num_ngrams:
+        phrase = ' '.join(ngrams[idx])
+        if ingredient_dict.find(phrase):
+            ingredients.append(phrase)
+            new_word_list = new_word_list[:word_idx] + new_word_list[word_idx+n:]
+            idx += n
+        else:
+            idx += 1
+            word_idx += 1
+
+    return new_word_list, ingredients
